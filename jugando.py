@@ -1,5 +1,6 @@
 import pygame
 import sys
+import math
 
 # ---------------------------------------------------------
 # 1. Configuración Inicial y Constantes
@@ -109,13 +110,16 @@ class Goal:
 
     def draw(self, surface):
         pygame.draw.rect(surface, COIN_GOLD, self.rect)
+
 class Laser:
-    def __init__(self, x, y, direction):
-        self.rect = pygame.Rect(x, y, 15, 5) # Ancho de 15px, alto de 5px
-        self.speed = 7 * direction # Se mueve a la izquierda (-7) o derecha (7)
+    def __init__(self, x, y, vel_x, vel_y):
+        self.rect = pygame.Rect(x, y, 10, 10) # Ancho de 15px, alto de 5px
+        self.vel_x = vel_x
+        self.vel_y = vel_y
 
     def update(self):
-        self.rect.x += self.speed
+        self.rect.x += self.vel_x
+        self.rect.y += self.vel_y
 
     def draw(self, surface):
         pygame.draw.rect(surface, LASER_RED, self.rect)
@@ -125,14 +129,23 @@ class Alien:
         self.rect = pygame.Rect(x, y, 30, 40)
         self.shoot_cooldown = 0 # Temporizador para no disparar en cada frame
 
-    def update(self, player_x, lasers):
+    def update(self, player_centerx, player_centery, lasers):
         # Si el temporizador llega a 0, puede disparar
         if self.shoot_cooldown <= 0:
-            # Calcula la dirección: -1 si el jugador está a la izquierda, 1 a la derecha
-            direction = -1 if player_x < self.rect.x else 1
+            # Calcula la diferencia de posiciones
+            dx = player_centerx - self.rect.centerx
+            dy = player_centery - self.rect.centery
             
-            # Crea un láser en el centro del marcianito
-            lasers.append(Laser(self.rect.centerx, self.rect.centery, direction))
+            #calcular el angulo hacia el jugador
+            angle = math.atan2(dy, dx)
+            
+            # 3. Determinar la velocidad en X y Y basadas en el ángulo
+            speed = 7 
+            vel_x = math.cos(angle) * speed
+            vel_y = math.sin(angle) * speed
+            
+            # 4. Crear el láser con esas velocidades
+            lasers.append(Laser(self.rect.centerx, self.rect.centery, vel_x, vel_y))
             
             # Reinicia el temporizador (90 frames = 1.5 segundos a 60 FPS)
             self.shoot_cooldown = 90 
@@ -146,6 +159,7 @@ class Alien:
 # 3. Función Principal (Game Loop)
 # ---------------------------------------------------------
 def main():
+
     # Instanciar jugador
     player = Player(50, HEIGHT - 100)
 
@@ -179,14 +193,14 @@ def main():
         if not level_complete:
             player.update(platforms)
             #detalles marcianito y laseres
-            alien.update(player.rect.x, lasers)
+            alien.update(player.rect.centerx, player.rect.centery, lasers)
             
             # Usamos [:] para iterar sobre una copia de la lista y poder eliminar elementos sin errores
             for laser in lasers[:]:
                 laser.update()
                 
                 # Si el láser sale de la pantalla, lo borramos para no gastar memoria
-                if laser.rect.left < 0 or laser.rect.right > WIDTH:
+                if laser.rect.left < 0 or laser.rect.right > WIDTH or laser.rect.top < 0 or laser.rect.bottom > HEIGHT:
                     lasers.remove(laser)
                 # Si el láser choca con el jugador:
                 elif laser.rect.colliderect(player.rect):
