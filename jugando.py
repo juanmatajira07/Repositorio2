@@ -148,7 +148,7 @@ class Alien:
             lasers.append(Laser(self.rect.centerx, self.rect.centery, vel_x, vel_y))
             
             # Reinicia el temporizador (90 frames = 1.5 segundos a 60 FPS)
-            self.shoot_cooldown = 90 
+            self.shoot_cooldown = 60 
         else:
             self.shoot_cooldown -= 1 # Reduce el tiempo de espera
 
@@ -176,7 +176,7 @@ def main():
     goal = Goal(730, 110, 40, 40)
 
     # Colocamos al marcianito parado sobre la Plataforma 3
-    alien = Alien(580, 210) 
+    alien = Alien(350, 20) 
     lasers = [] # Lista para almacenar los disparos en pantalla
     
     font = pygame.font.SysFont(None, 48)
