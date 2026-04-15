@@ -1,3 +1,5 @@
+#Antes del probar el juego recuerda instalar la libreria pygame(pega lo siguiente en la terminal):
+# py -m pip install pygame
 import pygame
 import sys
 import math
