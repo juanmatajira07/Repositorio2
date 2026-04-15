@@ -176,7 +176,7 @@ def main():
     goal = Goal(730, 110, 40, 40)
 
     # Colocamos al marcianito parado sobre la Plataforma 3
-    alien = Alien(350, 20) 
+    alien = Alien(590, 210) 
     lasers = [] # Lista para almacenar los disparos en pantalla
     
     font = pygame.font.SysFont(None, 48)
